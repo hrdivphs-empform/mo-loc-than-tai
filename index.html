@@ -59,15 +59,9 @@
 
     #result {
       margin-top: 18px;
-      font-size: 17px;
+      font-size: 18px;
       font-weight: bold;
-    }
-
-    .small {
-      font-size: 14px;
-      font-weight: normal;
-      margin-top: 6px;
-      display: block;
+      color: #2e7d32;
     }
   </style>
 </head>
@@ -111,14 +105,14 @@
 
         const data = await res.json();
 
-        if (data.status === "success") {
-          result.innerHTML = `🎉 ${data.reward_name}<span class="small">${data.message}</span>`;
-        } else {
-          result.innerText = data.reward_name;
-        }
+        // ✅ CHỈ ĐỌC reward_name – KHỚP BACKEND
+        result.innerHTML = `🎉 ${data.reward_name}`;
 
       } catch (e) {
         result.innerText = "❌ Có lỗi xảy ra, vui lòng thử lại.";
+      } finally {
+        isSubmitting = false;
+        btn.disabled = false;
       }
     }
   </script>
