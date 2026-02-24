@@ -114,7 +114,7 @@
         if (data.status === "success") {
           result.innerHTML = `🎉 ${data.reward_name}<span class="small">${data.message}</span>`;
         } else {
-          result.innerText = data.message;
+          result.innerText = data.reward_name;
         }
 
       } catch (e) {
