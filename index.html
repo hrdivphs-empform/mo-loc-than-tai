@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>🧧 Mở Lộc Thần Tài</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff7e6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .box {
+      background: #ffffff;
+      width: 100%;
+      max-width: 380px;
+      padding: 28px;
+      border-radius: 14px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #c62828;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px;
+      font-size: 16px;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    #result {
+      margin-top: 18px;
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .small {
+      font-size: 14px;
+      font-weight: normal;
+      margin-top: 6px;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h2>🧧 MỞ LỘC THẦN TÀI 🧧</h2>
+    <p>Mùng 10 vía Thần Tài – chúc bạn phát tài phát lộc!</p>
+
+    <input id="empCode" placeholder="Nhập mã nhân viên" />
+    <button id="openBtn" onclick="openLoc()">MỞ LỘC</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    let isSubmitting = false;
+
+    async function openLoc() {
+      if (isSubmitting) return;
+
+      const empCode = document.getElementById("empCode").value.trim();
+      const result = document.getElementById("result");
+      const btn = document.getElementById("openBtn");
+
+      if (!empCode) {
+        result.innerText = "⚠️ Vui lòng nhập mã nhân viên";
+        return;
+      }
+
+      isSubmitting = true;
+      btn.disabled = true;
+      result.innerText = "⏳ Đang mở lộc…";
+
+      try {
+        const res = await fetch("https://n8n.phs.vn/webhook/mo-loc-than-tai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ emp_code: empCode })
+        });
+
+        const data = await res.json();
+
+        if (data.status === "success") {
+          result.innerHTML = `🎉 ${data.reward_name}<span class="small">${data.message}</span>`;
+        } else {
+          result.innerText = data.message;
+        }
+
+      } catch (e) {
+        result.innerText = "❌ Có lỗi xảy ra, vui lòng thử lại.";
+      }
+    }
+  </script>
+</body>
+</html>
