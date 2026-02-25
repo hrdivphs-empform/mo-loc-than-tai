@@ -30,7 +30,14 @@
       text-align: center;
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
     }
-
+    .hint-text {
+      margin-top: 6px;
+      margin-bottom: 14px;
+      font-size: 13px;
+      font-style: italic;
+      color: #8d6e63; /* nâu nhạt – hợp tone lộc */
+    }
+    
     h2 {
       margin-top: 0;
       color: #c62828;
@@ -76,7 +83,7 @@
 <body>
   <div class="box">
     <h2>🧧 MỞ LỘC THẦN TÀI 🧧</h2>
-    <p>Nhập mã nhân viên và bấm mở lộc</p>
+    <p class="hint-text">Nhập mã nhân viên và bấm mở lộc</p>
 
     <input id="empCode" placeholder="Nhập mã nhân viên" />
     <button id="openBtn" onclick="openLoc()">MỞ LỘC</button>
