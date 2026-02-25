@@ -29,18 +29,20 @@
       border-radius: 14px;
       text-align: center;
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      position: relative;
     }
+
+    h2 {
+      margin-top: 0;
+      color: #c62828;
+    }
+
     .hint-text {
       margin-top: 6px;
       margin-bottom: 14px;
       font-size: 13px;
       font-style: italic;
-      color: #8d6e63; /* nâu nhạt – hợp tone lộc */
-    }
-    
-    h2 {
-      margin-top: 0;
-      color: #c62828;
+      color: #8d6e63;
     }
 
     input {
@@ -51,7 +53,7 @@
       border-radius: 6px;
       border: 1px solid #ccc;
       box-sizing: border-box;
-}
+    }
 
     button {
       width: 100%;
@@ -64,7 +66,7 @@
       border-radius: 6px;
       cursor: pointer;
       box-sizing: border-box;
-  }
+    }
 
     button:disabled {
       background: #ccc;
@@ -77,11 +79,66 @@
       font-weight: bold;
       color: #2e7d32;
     }
+
+    /* ===== HIỆU ỨNG ===== */
+
+    /* Lắc */
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-4px); }
+      100% { transform: translateX(0); }
+    }
+
+    .shake {
+      animation: shake 0.4s;
+    }
+
+    /* Fade kết quả */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease;
+    }
+
+    /* Confetti */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: red;
+      top: -10px;
+      animation: fall 3s linear forwards;
+      z-index: 999;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <div class="box">
+
+  <!-- 🎵 NHẠC NỀN -->
+  <audio id="bgMusic" loop>
+    <source src="https://res.cloudinary.com/da3w9imyd/video/upload/v1772014986/Th%E1%BA%A7n_T%C3%A0i_%C4%90%E1%BA%BFn_Remix_Beat_-_Ho%C3%A0i_An_df8tiz.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="box" id="box">
     <h2>🧧 MỞ LỘC THẦN TÀI 🧧</h2>
     <p class="hint-text">Nhập mã nhân viên và bấm mở lộc</p>
 
@@ -94,21 +151,48 @@
   <script>
     let isSubmitting = false;
 
+    function shakeBox() {
+      const box = document.getElementById("box");
+      box.classList.add("shake");
+      setTimeout(() => box.classList.remove("shake"), 400);
+    }
+
+    function startConfetti() {
+      for (let i = 0; i < 40; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.backgroundColor =
+          ["#f44336", "#ffeb3b", "#4caf50", "#ff9800"][Math.floor(Math.random() * 4)];
+        confetti.style.animationDuration = 2 + Math.random() * 2 + "s";
+
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 4000);
+      }
+    }
+
     async function openLoc() {
       if (isSubmitting) return;
 
       const empCode = document.getElementById("empCode").value.trim();
       const result = document.getElementById("result");
       const btn = document.getElementById("openBtn");
+      const music = document.getElementById("bgMusic");
 
       if (!empCode) {
         result.innerText = "⚠️ Vui lòng nhập mã nhân viên";
+        shakeBox();
         return;
       }
+
+      // 🎵 phát nhạc khi có tương tác
+      music.play().catch(() => {});
 
       isSubmitting = true;
       btn.disabled = true;
       result.innerText = "⏳ Đang mở lộc…";
+      shakeBox();
 
       try {
         const res = await fetch("https://n8n.phs.vn/webhook/mo-loc-than-tai", {
@@ -119,8 +203,11 @@
 
         const data = await res.json();
 
-        // ✅ CHỈ ĐỌC reward_name – KHỚP BACKEND
         result.innerHTML = `🎉 ${data.reward_name}`;
+        result.classList.add("fade-in");
+
+        // 🎉 có quà → bắn confetti
+        startConfetti();
 
       } catch (e) {
         result.innerText = "❌ Có lỗi xảy ra, vui lòng thử lại.";
