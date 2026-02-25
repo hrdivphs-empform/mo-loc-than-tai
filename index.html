@@ -5,6 +5,9 @@
   <title>🧧 Mở Lộc Thần Tài</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <!-- confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -29,7 +32,20 @@
       border-radius: 14px;
       text-align: center;
       box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-      position: relative;
+      animation: none;
+    }
+
+    .shake {
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+      100% { transform: translateX(0); }
     }
 
     h2 {
@@ -65,7 +81,6 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      box-sizing: border-box;
     }
 
     button:disabled {
@@ -79,43 +94,12 @@
       font-weight: bold;
       color: #2e7d32;
     }
-
-    /* ===== HIỆU ỨNG ===== */
-
-    /* Lắc */
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      50% { transform: translateX(4px); }
-      75% { transform: translateX(-4px); }
-      100% { transform: translateX(0); }
-    }
-
-    .shake {
-      animation: shake 0.4s;
-    }
-
-    /* Fade kết quả */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(6px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .fade-in {
-      animation: fadeIn 0.6s ease;
-    }
   </style>
 </head>
 
 <body>
 
-  <!-- 🎵 NHẠC NỀN -->
+  <!-- 🎵 Nhạc nền -->
   <audio id="bgMusic" loop>
     <source src="https://res.cloudinary.com/da3w9imyd/video/upload/v1772014986/Th%E1%BA%A7n_T%C3%A0i_%C4%90%E1%BA%BFn_Remix_Beat_-_Ho%C3%A0i_An_df8tiz.mp3" type="audio/mpeg">
   </audio>
@@ -130,28 +114,9 @@
     <div id="result"></div>
   </div>
 
-  <!-- 🎉 Confetti lib -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
   <script>
     let isSubmitting = false;
     let musicStarted = false;
-
-    function shakeBox() {
-      const box = document.getElementById("box");
-      box.classList.add("shake");
-      setTimeout(() => box.classList.remove("shake"), 400);
-    }
-
-    function fireConfettiFromBottom() {
-      confetti({
-        particleCount: 120,
-        angle: 90,
-        spread: 70,
-        origin: { x: 0.5, y: 1 },
-        colors: ['#f44336', '#ffeb3b', '#4caf50', '#ff9800']
-      });
-    }
 
     async function openLoc() {
       if (isSubmitting) return;
@@ -159,24 +124,27 @@
       const empCode = document.getElementById("empCode").value.trim();
       const result = document.getElementById("result");
       const btn = document.getElementById("openBtn");
+      const box = document.getElementById("box");
       const music = document.getElementById("bgMusic");
 
-      if (!empCode) {
-        result.innerText = "⚠️ Vui lòng nhập mã nhân viên";
-        shakeBox();
-        return;
-      }
-
-      // 🎵 chỉ bật nhạc lần đầu (đúng luật browser)
+      // 🎵 bật nhạc ngay lần click đầu tiên
       if (!musicStarted) {
         music.play().catch(() => {});
         musicStarted = true;
       }
 
+      if (!empCode) {
+        result.innerText = "⚠️ Vui lòng nhập mã nhân viên";
+        return;
+      }
+
       isSubmitting = true;
       btn.disabled = true;
       result.innerText = "⏳ Đang mở lộc…";
-      shakeBox();
+
+      // hiệu ứng lắc
+      box.classList.add("shake");
+      setTimeout(() => box.classList.remove("shake"), 500);
 
       try {
         const res = await fetch("https://n8n.phs.vn/webhook/mo-loc-than-tai", {
@@ -188,10 +156,13 @@
         const data = await res.json();
 
         result.innerHTML = `🎉 ${data.reward_name}`;
-        result.classList.add("fade-in");
 
-        // 🎉 có quà → bắn confetti từ dưới
-        fireConfettiFromBottom();
+        // 🎊 confetti khi có kết quả
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
 
       } catch (e) {
         result.innerText = "❌ Có lỗi xảy ra, vui lòng thử lại.";
