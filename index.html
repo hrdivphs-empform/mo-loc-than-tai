@@ -110,24 +110,6 @@
     .fade-in {
       animation: fadeIn 0.6s ease;
     }
-
-    /* Confetti */
-    .confetti {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background: red;
-      top: -10px;
-      animation: fall 3s linear forwards;
-      z-index: 999;
-    }
-
-    @keyframes fall {
-      to {
-        transform: translateY(110vh) rotate(720deg);
-        opacity: 0;
-      }
-    }
   </style>
 </head>
 
@@ -148,8 +130,12 @@
     <div id="result"></div>
   </div>
 
+  <!-- 🎉 Confetti lib -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <script>
     let isSubmitting = false;
+    let musicStarted = false;
 
     function shakeBox() {
       const box = document.getElementById("box");
@@ -157,19 +143,14 @@
       setTimeout(() => box.classList.remove("shake"), 400);
     }
 
-    function startConfetti() {
-      for (let i = 0; i < 40; i++) {
-        const confetti = document.createElement("div");
-        confetti.className = "confetti";
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.backgroundColor =
-          ["#f44336", "#ffeb3b", "#4caf50", "#ff9800"][Math.floor(Math.random() * 4)];
-        confetti.style.animationDuration = 2 + Math.random() * 2 + "s";
-
-        document.body.appendChild(confetti);
-
-        setTimeout(() => confetti.remove(), 4000);
-      }
+    function fireConfettiFromBottom() {
+      confetti({
+        particleCount: 120,
+        angle: 90,
+        spread: 70,
+        origin: { x: 0.5, y: 1 },
+        colors: ['#f44336', '#ffeb3b', '#4caf50', '#ff9800']
+      });
     }
 
     async function openLoc() {
@@ -186,8 +167,11 @@
         return;
       }
 
-      // 🎵 phát nhạc khi có tương tác
-      music.play().catch(() => {});
+      // 🎵 chỉ bật nhạc lần đầu (đúng luật browser)
+      if (!musicStarted) {
+        music.play().catch(() => {});
+        musicStarted = true;
+      }
 
       isSubmitting = true;
       btn.disabled = true;
@@ -206,8 +190,8 @@
         result.innerHTML = `🎉 ${data.reward_name}`;
         result.classList.add("fade-in");
 
-        // 🎉 có quà → bắn confetti
-        startConfetti();
+        // 🎉 có quà → bắn confetti từ dưới
+        fireConfettiFromBottom();
 
       } catch (e) {
         result.innerText = "❌ Có lỗi xảy ra, vui lòng thử lại.";
