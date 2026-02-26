@@ -36,7 +36,7 @@
     }
 
     .shake {
-      animation: shake 0.5s;
+      animation: shake 1s;
     }
 
     @keyframes shake {
@@ -144,7 +144,7 @@
 
       // hiệu ứng lắc
       box.classList.add("shake");
-      setTimeout(() => box.classList.remove("shake"), 500);
+      setTimeout(() => box.classList.remove("shake"), 1000);
 
       try {
         const res = await fetch("https://n8n.phs.vn/webhook/mo-loc-than-tai", {
